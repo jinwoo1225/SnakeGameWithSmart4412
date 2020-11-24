@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		CB1B1449256CAF9D0046ACF7 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB1B1448256CAF9D0046ACF7 /* main.cpp */; };
+		CB1B1453256D64CB0046ACF7 /* DotMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB1B1451256D64CB0046ACF7 /* DotMatrix.cpp */; };
+		CB1B1457256D66370046ACF7 /* Snake.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB1B1455256D66370046ACF7 /* Snake.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +27,10 @@
 /* Begin PBXFileReference section */
 		CB1B1445256CAF9D0046ACF7 /* Snake */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Snake; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB1B1448256CAF9D0046ACF7 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		CB1B1451256D64CB0046ACF7 /* DotMatrix.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DotMatrix.cpp; sourceTree = "<group>"; };
+		CB1B1452256D64CB0046ACF7 /* DotMatrix.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DotMatrix.hpp; sourceTree = "<group>"; };
+		CB1B1455256D66370046ACF7 /* Snake.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Snake.cpp; sourceTree = "<group>"; };
+		CB1B1456256D66370046ACF7 /* Snake.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Snake.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +64,10 @@
 			isa = PBXGroup;
 			children = (
 				CB1B1448256CAF9D0046ACF7 /* main.cpp */,
+				CB1B1455256D66370046ACF7 /* Snake.cpp */,
+				CB1B1456256D66370046ACF7 /* Snake.hpp */,
+				CB1B1451256D64CB0046ACF7 /* DotMatrix.cpp */,
+				CB1B1452256D64CB0046ACF7 /* DotMatrix.hpp */,
 			);
 			path = Snake;
 			sourceTree = "<group>";
@@ -118,7 +128,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB1B1453256D64CB0046ACF7 /* DotMatrix.cpp in Sources */,
 				CB1B1449256CAF9D0046ACF7 /* main.cpp in Sources */,
+				CB1B1457256D66370046ACF7 /* Snake.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
