@@ -6,6 +6,7 @@
 //
 
 #include "DotMatrix.hpp"
+#define DOT_DEV "/dev/dot"
 #include <iostream>
 #include <vector>
 #include <string.h>

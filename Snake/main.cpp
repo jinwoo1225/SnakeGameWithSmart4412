@@ -81,7 +81,7 @@ public:
             }
             if (!(timer % int(600 / s.getSpeed())))
             {
-                move(heading); 
+                move(heading);
             }
             heading = TSW.get();
             usleep(TIME_QUANTUM);
@@ -109,6 +109,24 @@ public:
         vector2Matrix(s.getTrail(1));
         dM.printToSerial();
     }
+
+    bool isGameOver(coord C, vector<coord> T)
+    {
+        for (coord trail : T)
+        {
+            if ((C.x == trail.x) && (C.y == trail.y))
+            {
+                return true;
+            }
+        }
+
+        if (!(s.isOnSpace(C)))
+        {
+            return false;
+        }
+
+        return true;
+    }
 };
 
 int main(int argc, const char *argv[])
@@ -122,7 +140,7 @@ int main(int argc, const char *argv[])
     }
     printf("starting game...\n");
     g.start(keyStroke);
-    
+
     //    usleep(16666);
 
     return 0;

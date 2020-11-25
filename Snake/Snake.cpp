@@ -6,7 +6,7 @@
 //
 
 #include "Snake.hpp"
-#include <iostream>
+// #include <iostream>
 #include <vector>
 #include <string.h>
 

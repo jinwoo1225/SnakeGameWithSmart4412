@@ -7,9 +7,13 @@
 
 #include "TactSW.hpp"
 
+static char tactswDev[] = "/dev/tactsw";
+
+
 class TactSW {
 private:
     int btn;
+
     
 public:
     TactSW(){
