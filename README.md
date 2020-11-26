@@ -1,5 +1,5 @@
 # SnakeGameWithSmart4412
-Hybus-Smart4412 교육용장비를 위한 cpp코딩
+### Hybus-Smart4412 교육용장비를 위한 cpp코딩
 
 # Hybus-Smart4412장비에 Snake게임을 구현했습니다!
 
