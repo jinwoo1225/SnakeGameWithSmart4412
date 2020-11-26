@@ -37,6 +37,13 @@ public:
         print(s1 + s2);
     }
 
+    void gameOver(int score)
+    {
+        string s1 = "Score   : " + scoreSpacer(score, 4) + "  ";
+        string s2 = "   Game Over    ";
+        print(s1 + s2);
+    }
+
     string scoreSpacer(int I, int space)
     {
         string STR = to_string(I);
