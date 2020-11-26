@@ -14,9 +14,9 @@
 #include <unistd.h>
 #include <termios.h>
 #include <cstdlib>
-//#include <sys/signal.h>
-//#include <sys/types.h>
-//#include <asm/ioctls.h>
+#include <sys/signal.h>
+#include <sys/types.h>
+#include <asm/ioctls.h>
 
 #include "DotMatrix.cpp"
 #include "Snake.cpp"
@@ -40,7 +40,8 @@ typedef enum : int
     UP,
     DOWN,
     LEFT,
-    RIGHT
+    RIGHT,
+    OK
 } UDLR;
 #endif
 
@@ -72,21 +73,25 @@ public:
 
     void start(int heading)
     {
+        int head = heading;
+        int temp;
         while (true)
         {
-            // printf("%d\n",timer);
-            if (!(timer % 10))
-            {
-                print();
+            dM.openDot();
+            print();
+            usleep(TIME_QUANTUM * 20);
+            dM.closeDot();
+            
+            if((temp = TSW.get()) >= 0){
+                head = temp;
             }
-            if (!(timer % int(600 / s.getSpeed())))
-            {
-                move(heading);
-            }
-            heading = TSW.get();
-            usleep(TIME_QUANTUM);
+            // heading = 0;
             timer++;
-            if (timer >= 600)
+            if (!(timer % int(30 / s.getSpeed())))
+            {
+                move(head);
+            }
+            if (timer >= 30)
             {
                 timer = 0;
             }
@@ -98,7 +103,6 @@ public:
     {
         //snake의 go메소드를 통해서 heading으로 한칸 움직임
         s.go(heading);
-
         snakeCoord = s.get();
         printf("moving %d: %d, %d\n", heading, snakeCoord.y, snakeCoord.x);
     }
@@ -107,7 +111,8 @@ public:
     void print()
     {
         vector2Matrix(s.getTrail(1));
-        dM.printToSerial();
+        // dM.printToSerial();
+        dM.drawToMatrix();
     }
 
     bool isGameOver(coord C, vector<coord> T)
@@ -133,13 +138,11 @@ int main(int argc, const char *argv[])
 {
     Game g;
     TactSW TSW;
-    int keyStroke = 255;
-    while (keyStroke < 4)
-    {
-        keyStroke = TSW.get();
-    }
+    int h;
+    // int keyStroke = 255;
+    while ((h = TSW.get())<0);
     printf("starting game...\n");
-    g.start(keyStroke);
+    g.start(h);
 
     //    usleep(16666);
 

@@ -27,7 +27,8 @@ typedef enum : int
     UP,
     DOWN,
     LEFT,
-    RIGHT
+    RIGHT,
+    OK
 } UDLR;
 
 class Snake
@@ -79,11 +80,11 @@ public:
             break;
 
         case LEFT:
-            ret.x -= 1;
+            ret.x += 1;
             break;
 
         case RIGHT:
-            ret.x += 1;
+            ret.x -= 1;
             break;
 
         default:
