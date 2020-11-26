@@ -87,7 +87,7 @@ public:
             printf("game : snake constructed @ y:%d x:%d\n", snakeCoord.y, snakeCoord.x);
             while (TSW.get() != 4)
                 ;
-            timer = score = 0;
+            timer = score = 1;
             head = -1;
             printf("game : waiting for selecting head\n");
             CL.gaming(score, highScore);
