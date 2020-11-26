@@ -49,7 +49,7 @@ private:
         return rand() % max;
     }
 
-    void removeSnakeTrail(coord C, vector<coord> V)
+    void removeFromRemaining(coord C, vector<coord> V)
     {
         for (int i = 0; i < V.size(); i++)
         {
@@ -156,7 +156,7 @@ public:
     {
         //        trail의 앞부분에 C추가
         trail.insert(trail.begin(), C);
-        removeSnakeTrail(C, remaining);
+        removeFromRemaining(C, remaining);
         remaining.insert(remaining.begin(), trail.begin() + size, trail.end());
         trail.assign(trail.begin(), trail.begin() + size);
     }
@@ -186,7 +186,7 @@ public:
     coord setPrey()
     {
         prey = remaining[getRandomNum(remaining.size())];
-        removeSnakeTrail(prey, remaining);
+        removeFromRemaining(prey, remaining);
         return prey;
     }
 
