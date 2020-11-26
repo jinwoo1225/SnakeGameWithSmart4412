@@ -50,10 +50,12 @@ class Game
 {
 private:
     int timer;
+    int highScore;
     coord snakeCoord;
     Snake s;
     DotMatrix dM;
     TactSW TSW;
+    CharacterLCD CL;
 
     //벡터를 매트릭스로 표현
     void vector2Matrix(vector<coord> V)
@@ -69,21 +71,42 @@ public:
     Game()
     {
         snakeCoord = s.get();
-        printf("snake constructed : %d,%d\n", snakeCoord.y, snakeCoord.x);
+        highScore = 0;
+        printf("game : snake constructed @ y:%d x:%d\n", snakeCoord.y, snakeCoord.x);
     }
 
-    void start(int heading)
+    void start()
     {
-        int head = heading;
+        int score = 0;
+        int head = -1;
         int temp;
+        timer = 0;
+        printf("game : waiting for user to press OK\n");
+        CL.beforeGame();
+        while ((temp = TSW.get()) != 4)
+            ;
+        printf("game : waiting for selecting head\n");
+        CL.gaming(score, highScore);
+        while ((head < 0) || (head > 3))
+        {
+            dM.openDot();
+            print();
+            usleep(TIME_QUANTUM * 20);
+            head = TSW.get();
+            dM.closeDot();
+        }
+        move(head);
+        printf("game : selected head game just started\n");
         while (true)
         {
             dM.openDot();
             print();
             usleep(TIME_QUANTUM * 20);
             dM.closeDot();
-            
-            if((temp = TSW.get()) >= 0){
+            temp = TSW.get();
+
+            if ((temp >= 0) && (temp < 4))
+            {
                 head = temp;
             }
             // heading = 0;
@@ -138,16 +161,9 @@ public:
 int main(int argc, const char *argv[])
 {
     Game g;
-    TactSW TSW;
-    CharacterLCD CL;
-    int h;
-    // int keyStroke = 255;
-    CL.beforeGame();
-    while ((h = TSW.get())<0);
-    printf("starting game...\n");
-    g.start(h);
 
-    //    usleep(16666);
+    printf("starting game...\n");
+    g.start();
 
     return 0;
 }
