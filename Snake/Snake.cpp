@@ -55,6 +55,7 @@ private:
         {
             if (C.x == V[i].x && C.y == V[i].y)
             {
+                printf("snake: removing %d, %d\n", V[i].y, V[i].x);
                 V.erase(V.begin() + i);
             }
         }
@@ -127,17 +128,23 @@ public:
             //규정된 space내에 위치한다면, 좌표로이동
             //그렇지 않다면 게임오버.
             currentYX = ret;
+
             //먹이를 먹으면 스코어==size++ 새로운 먹이 생성
             if (currentYX.y == prey.y && currentYX.x == prey.x)
             {
-                setPrey();
+                printf("snake : prey eaten\n");
                 size++;
+                pushTrail(ret);
+                setPrey();
                 if ((size % 10) == 0)
                 {
                     speed++;
                 }
             }
-            pushTrail(ret);
+            else
+            {
+                pushTrail(ret);
+            }
             //자신의 꼬리와 만난다면 게임오버
             for (int i = 1; i < trail.size(); i++)
             {

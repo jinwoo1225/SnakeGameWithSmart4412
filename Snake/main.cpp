@@ -22,6 +22,7 @@
 #include "Snake.cpp"
 #include "TactSW.cpp"
 #include "CharacterLCD.cpp"
+#include "LED.cpp"
 
 #define TIME_QUANTUM 1667
 
@@ -56,6 +57,7 @@ private:
     DotMatrix dM;
     TactSW TSW;
     CharacterLCD CL;
+    LED LE;
 
     //벡터를 매트릭스로 표현
     void vector2Matrix(vector<coord> V)
@@ -107,8 +109,13 @@ public:
 
                 dM.openDot();
                 print();
-                usleep(TIME_QUANTUM * 20);
+                usleep(TIME_QUANTUM * 18);
                 dM.closeDot();
+
+                LE.openLED();
+                LE.next();
+                usleep(TIME_QUANTUM * 2);
+                LE.closeLED();
                 temp = TSW.get();
 
                 if ((temp >= 0) && (temp < 4))
@@ -135,13 +142,16 @@ public:
                     timer = 0;
                 }
             }
-            printf("game : user just losted the game\nscore : %d", score);
+            printf("game : user just losted the game\nscore : %d\n", score);
             CL.gameOver(score);
             if (score > highScore)
             {
                 highScore = score;
             }
+            LE.openLED();
+            LE.full();
             sleep(5);
+            LE.closeLED();
             printf("game : waiting for user to press OK\n");
             CL.beforeGame();
             s.reset();
