@@ -21,6 +21,7 @@
 #include "DotMatrix.cpp"
 #include "Snake.cpp"
 #include "TactSW.cpp"
+#include "CharacterLCD.cpp"
 
 #define TIME_QUANTUM 1667
 
@@ -138,8 +139,10 @@ int main(int argc, const char *argv[])
 {
     Game g;
     TactSW TSW;
+    CharacterLCD CL;
     int h;
     // int keyStroke = 255;
+    CL.beforeGame();
     while ((h = TSW.get())<0);
     printf("starting game...\n");
     g.start(h);

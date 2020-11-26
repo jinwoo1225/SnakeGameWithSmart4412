@@ -6,9 +6,12 @@
 //
 
 #include "Snake.hpp"
-// #include <iostream>
+#include <iostream>
 #include <vector>
 #include <string.h>
+#include<stdlib.h>
+#include <cstdlib>
+#include <ctime>
 
 #define ENUM_SET
 
@@ -35,10 +38,13 @@ class Snake
 {
 private:
     coord currentYX;
+    coord prey;
     vector<coord> trail;
     int size;
     int heading;
     int speed;
+
+    
 
     int getRandomNum(int max)
     {
@@ -48,6 +54,7 @@ private:
 public:
     Snake()
     {
+        srand((unsigned int)time(NULL));
         coord C = {getRandomNum(8), getRandomNum(8)};
         //생성자 추가할때
         //사이즈 1로 설정
@@ -128,5 +135,15 @@ public:
             ret = false;
         }
         return ret;
+    }
+
+    coord setPrey(){
+        prey.y = getRandomNum(8);
+        prey.x = getRandomNum(8);
+        return prey;
+    }
+
+    coord getPrey(){
+        return prey;
     }
 };
