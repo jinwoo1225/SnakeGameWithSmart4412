@@ -96,9 +96,11 @@ public:
             dM.closeDot();
         }
         move(head);
-        printf("game : selected head game just started\n");
+        printf("game : user selected head and game just started\n");
         while (true)
         {
+            // 먹이 하나먹을때마다 갱신
+            // CL.gaming(score, highScore);
             dM.openDot();
             print();
             usleep(TIME_QUANTUM * 20);
@@ -109,12 +111,13 @@ public:
             {
                 head = temp;
             }
-            // heading = 0;
-            timer++;
             if (!(timer % int(30 / s.getSpeed())))
             {
-                move(head);
+                if (!move(head))
+                    break;
             }
+
+            timer++;
             if (timer >= 30)
             {
                 timer = 0;
@@ -123,18 +126,20 @@ public:
     }
 
     //heading이 향하는 방향으로 움직임
-    void move(int heading)
+    bool move(int heading)
     {
+        bool ret = true;
         //snake의 go메소드를 통해서 heading으로 한칸 움직임
-        s.go(heading);
+        ret = s.go(heading);
         snakeCoord = s.get();
         printf("moving %d: %d, %d\n", heading, snakeCoord.y, snakeCoord.x);
+        return ret;
     }
 
     //장비에 출력
     void print()
     {
-        vector2Matrix(s.getTrail(1));
+        vector2Matrix(s.getTrail());
         // dM.printToSerial();
         dM.drawToMatrix();
     }

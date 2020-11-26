@@ -9,7 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <string.h>
-#include<stdlib.h>
+#include <stdlib.h>
 #include <cstdlib>
 #include <ctime>
 
@@ -40,15 +40,25 @@ private:
     coord currentYX;
     coord prey;
     vector<coord> trail;
+    vector<coord> remaining;
     int size;
     int heading;
     int speed;
 
-    
-
     int getRandomNum(int max)
     {
         return rand() % max;
+    }
+
+    void removeSnakeTrail(coord C, vector<coord> V)
+    {
+        for (int i = 0; i < V.size(); i++)
+        {
+            if (C.x == V[i].x && C.y == V[i].y)
+            {
+                V.erase(V.begin() + i);
+            }
+        }
     }
 
 public:
@@ -56,6 +66,14 @@ public:
     {
         srand((unsigned int)time(NULL));
         coord C = {getRandomNum(8), getRandomNum(8)};
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                remaining.push_back({i, j});
+            }
+        }
+
         //생성자 추가할때
         //사이즈 1로 설정
         this->size = 1;
@@ -64,6 +82,7 @@ public:
         currentYX = C;
         //Trail에도 추가
         pushTrail(C);
+        setPrey();
     }
 
     coord get()
@@ -73,7 +92,7 @@ public:
     }
 
     //향하는 방향으로 움직임.
-    coord go(int heading)
+    bool go(int heading)
     {
         coord ret = currentYX;
         switch (heading)
@@ -100,25 +119,41 @@ public:
         if (isOnSpace(ret))
         {
             //규정된 space내에 위치한다면, 좌표로이동
-            //그렇지 않다면, 제자리 걸음.
+            //그렇지 않다면 게임오버.
             currentYX = ret;
             pushTrail(ret);
+            //먹이를 먹으면 스코어==size++ 새로운 먹이 생성
+            if (currentYX.y == prey.y && currentYX.x == prey.x)
+            {
+                setPrey();
+                size++;
+            }
+            //자신의 꼬리와 만난다면 게임오버
+            for (coord Tl : trail)
+            {
+                if ((ret.x == Tl.x) && (ret.y == Tl.y))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
-        return currentYX;
+        return false;
     }
 
     void pushTrail(coord C)
     {
         //        trail의 앞부분에 C추가
         trail.insert(trail.begin(), C);
+        removeSnakeTrail(C, remaining);
+        remaining.insert(remaining.begin(), trail.begin() + size + 1, trail.end());
+        trail.assign(trail.begin(), trail.begin() + size);
     }
 
-    vector<coord> getTrail(int size)
+    vector<coord> getTrail()
     {
         //        trail의 앞부분 부터 size크기 만큼 반환
-        vector<coord> ret;
-        ret.assign(trail.begin(), trail.begin() + size);
-        return ret;
+        return trail;
     }
 
     int getSpeed()
@@ -137,13 +172,15 @@ public:
         return ret;
     }
 
-    coord setPrey(){
-        prey.y = getRandomNum(8);
-        prey.x = getRandomNum(8);
+    coord setPrey()
+    {
+        prey = remaining[getRandomNum(remaining.size())];
+        removeSnakeTrail(prey, remaining);
         return prey;
     }
 
-    coord getPrey(){
+    coord getPrey()
+    {
         return prey;
     }
 };
