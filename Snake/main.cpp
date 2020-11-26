@@ -70,67 +70,90 @@ private:
 public:
     Game()
     {
-        snakeCoord = s.get();
         highScore = 0;
-        printf("game : snake constructed @ y:%d x:%d\n", snakeCoord.y, snakeCoord.x);
     }
 
     void start()
     {
-        int score = 0;
-        int head = -1;
+        int score;
+        int head;
         int temp;
-        timer = 0;
         printf("game : waiting for user to press OK\n");
         CL.beforeGame();
-        while ((temp = TSW.get()) != 4)
-            ;
-        printf("game : waiting for selecting head\n");
-        CL.gaming(score, highScore);
-        while ((head < 0) || (head > 3))
-        {
-            dM.openDot();
-            print();
-            usleep(TIME_QUANTUM * 20);
-            head = TSW.get();
-            dM.closeDot();
-        }
-        move(head);
-        printf("game : user selected head and game just started\n");
         while (true)
         {
-            // 먹이 하나먹을때마다 갱신
-            // CL.gaming(score, highScore);
-            dM.openDot();
-            print();
-            usleep(TIME_QUANTUM * 20);
-            dM.closeDot();
-            temp = TSW.get();
 
-            if ((temp >= 0) && (temp < 4))
+            snakeCoord = s.get();
+            printf("game : snake constructed @ y:%d x:%d\n", snakeCoord.y, snakeCoord.x);
+            while (TSW.get() != 4)
+                ;
+            timer = score = 0;
+            head = -1;
+            printf("game : waiting for selecting head\n");
+            CL.gaming(score, highScore);
+            while ((head < 0) || (head > 3))
             {
-                head = temp;
-            }
-            if (!(timer % int(30 / s.getSpeed())))
-            {
-                if (!move(head))
-                    break;
+                dM.openDot();
+                print();
+                usleep(TIME_QUANTUM * 20);
+                head = TSW.get();
+                dM.closeDot();
             }
 
-            timer++;
-            if (timer >= 30)
+            move(head);
+            printf("game : user selected head and game just started\n");
+            while (true)
             {
-                timer = 0;
+
+                dM.openDot();
+                print();
+                usleep(TIME_QUANTUM * 20);
+                dM.closeDot();
+                temp = TSW.get();
+
+                if ((temp >= 0) && (temp < 4))
+                {
+                    head = temp;
+                }
+                if (!(timer % int(30 / s.getSpeed())))
+                {
+                    if (!move(head))
+                    {
+                        break;
+                    }
+                    if (score != s.getScore())
+                    {
+                        score = s.getScore();
+                        // 먹이 하나먹을때마다 갱신
+                        CL.gaming(score, highScore);
+                    }
+                }
+
+                timer++;
+                if (timer >= 30)
+                {
+                    timer = 0;
+                }
             }
+            printf("game : user just losted the game\nscore : %d", score);
+            CL.gameOver(score);
+            if (score > highScore)
+            {
+                highScore = score;
+            }
+            sleep(5);
+            printf("game : waiting for user to press OK\n");
+            CL.beforeGame();
+            s.reset();
         }
     }
 
     //heading이 향하는 방향으로 움직임
     bool move(int heading)
     {
-        bool ret = true;
+
         //snake의 go메소드를 통해서 heading으로 한칸 움직임
-        ret = s.go(heading);
+        bool ret = s.go(heading);
         snakeCoord = s.get();
         printf("moving %d: %d, %d\n", heading, snakeCoord.y, snakeCoord.x);
         return ret;
@@ -140,6 +163,7 @@ public:
     void print()
     {
         vector2Matrix(s.getTrail());
+        dM.set(s.getPrey());
         // dM.printToSerial();
         dM.drawToMatrix();
     }
@@ -169,6 +193,7 @@ int main(int argc, const char *argv[])
 
     printf("starting game...\n");
     g.start();
+    printf("ending game...\n");
 
     return 0;
 }
