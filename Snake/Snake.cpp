@@ -25,6 +25,7 @@ typedef struct coord
 } coord;
 #endif
 
+//ENUM을 활용해서 0,1,2,3,4를 설정
 typedef enum : int
 {
     UP,
@@ -49,15 +50,34 @@ private:
         return rand() % max;
     }
 
-    void removeFromRemaining(coord C, vector<coord> V)
+    void removeFromRemaining(coord C)
     {
-        for (int i = 0; i < V.size(); i++)
+        for (int i = 0; i < remaining.size(); i++)
         {
-            if (C.x == V[i].x && C.y == V[i].y)
+            if (C.x == remaining[i].x && C.y == remaining[i].y)
             {
-                printf("snake: removing %d, %d\n", V[i].y, V[i].x);
-                V.erase(V.begin() + i);
+                printf("snake: removed from v remainingector %d, %d\n", remaining[i].y, remaining[i].x);
+                remaining.erase(remaining.begin() + i);
             }
+        }
+    }
+
+    //디버깅용함수
+    void printVector(vector<coord> V)
+    {
+        bool M[8][8];
+        memset(&M, false, sizeof(bool) * 8 * 8);
+        for (coord C : V)
+        {
+            M[C.y][C.x] = true;
+        }
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                printf("%d", M[i][7 - j]);
+            }
+            printf("\n");
         }
     }
 
@@ -70,6 +90,7 @@ public:
 
     void reset()
     {
+        printf("snake : resetting snake game\n");
         trail.clear();
         remaining.clear();
         coord C = {getRandomNum(8), getRandomNum(8)};
@@ -163,14 +184,13 @@ public:
     {
         //        trail의 앞부분에 C추가
         trail.insert(trail.begin(), C);
-        removeFromRemaining(C, remaining);
+        removeFromRemaining(C);
         remaining.insert(remaining.begin(), trail.begin() + size, trail.end());
         trail.assign(trail.begin(), trail.begin() + size);
     }
 
     vector<coord> getTrail()
     {
-        //        trail의 앞부분 부터 size크기 만큼 반환
         return trail;
     }
 
@@ -193,7 +213,11 @@ public:
     coord setPrey()
     {
         prey = remaining[getRandomNum(remaining.size())];
-        removeFromRemaining(prey, remaining);
+        removeFromRemaining(prey);
+        printf("snake : prey setted at %d, %d\n", prey.y, prey.x);
+        // 디버깅용
+        // printVector(remaining);
+        // printVector(trail);
         return prey;
     }
 
