@@ -2,8 +2,9 @@
 ### Hybus-Smart4412 교육용장비를 위한 cpp코딩
 
 # Hybus-Smart4412장비에 Snake게임을 구현했습니다!
-
+![Pic](./Pic/OnPlay.jpg)
 ## 사용한 IO장치
+![Pic2](./Pic/Overview.jpg)
 1. DotMatrix      "/dev/dot"
 2. TactSwitch     "/dev/tactsw"
 3. Character LCD  "/dev/clcd"
@@ -12,7 +13,8 @@
 
 ## 사용한 프로그래밍 언어
 C/C++
-
+## 플레이 영상
+[![Watch the video](https://img.youtube.com/vi/Rp65Z1loa4c/hqdefault.jpg)](https://youtu.be/Rp65Z1loa4c)
 ## 플레이 방법
 1. Hybus에 arm-linux-gnuaebi-g++로 컴파일된 프로그램을 적재
 2. 프로그램 실행
