@@ -3,20 +3,19 @@
 //  Snake
 //
 //  Created by HongJinwoo on 2020/11/25.
-//
+//  스네이크가 어떻게 동작하고, 먹이를 어떻게 출력할지 정하는 파일
 
-#include "Snake.hpp"
 #include <iostream>
 #include <vector>
 #include <string.h>
 #include <stdlib.h>
-#include <cstdlib>
 #include <ctime>
 
 #define ENUM_SET
 
 using namespace std;
 
+// coord구조체 사용
 #ifndef COORD_SET
 typedef struct coord
 {
@@ -38,28 +37,59 @@ typedef enum : int
 class Snake
 {
 private:
+    //뱀의 머리 좌표
     coord currentYX;
+    // 뱀의 먹이 좌표
     coord prey;
+    // 뱀의 머리부터 꼬리까지 담고있는 벡터
     vector<coord> trail;
+    // trail와 prey를 제외한 나머지 벡터
     vector<coord> remaining;
     int size;
     int speed;
 
-    int getRandomNum(int max)
+    // [0, max) 값을 반환
+    int getRandomNum(int max) { return rand() % max; }
+
+    // TrailVector에 C좌표 추가
+    void pushTrail(coord C)
     {
-        return rand() % max;
+        // trail의 앞부분에 C추가
+        trail.insert(trail.begin(), C);
+        // C를 remaining에서 제외
+        removeFromRemaining(C);
+        // remaining에 뱀의 길이에 맞지 않는 나머지 벡터 흡수
+        remaining.insert(remaining.begin(), trail.begin() + size, trail.end());
+        //trail에 뱀의 길이에 맞는 값만 재지정
+        trail.assign(trail.begin(), trail.begin() + size);
     }
 
+    // C를 remaining에서 제외
     void removeFromRemaining(coord C)
     {
         for (int i = 0; i < remaining.size(); i++)
         {
             if (C.x == remaining[i].x && C.y == remaining[i].y)
             {
-                printf("snake: removed from v remainingector %d, %d\n", remaining[i].y, remaining[i].x);
+                // coord C와 동일한 요소를 삭제
                 remaining.erase(remaining.begin() + i);
+                return;
             }
         }
+    }
+
+    // 먹이를 설정
+    coord setPrey()
+    {
+        // 나머지 벡터에서 무작위로 하나를 뽑음
+        prey = remaining[getRandomNum(remaining.size())];
+        // 나머지 벡터에서 뽑은 요소를 제거
+        removeFromRemaining(prey);
+        printf("snake : prey setted at %d, %d\n", prey.y, prey.x);
+        // 디버깅용
+        // printVector(remaining);
+        // printVector(trail);
+        return prey;
     }
 
     //디버깅용함수
@@ -81,6 +111,15 @@ private:
         }
     }
 
+    static bool isOnSpace(coord C)
+    {
+        if (C.y > 7 || C.y < 0 || C.x > 7 || C.x < 0)
+        {
+            return false;
+        }
+        return true;
+    }
+
 public:
     Snake()
     {
@@ -91,9 +130,13 @@ public:
     void reset()
     {
         printf("snake : resetting snake game\n");
+        // trail, remaining을 빈깡통으로 재설정
         trail.clear();
         remaining.clear();
+        // 새로운 뱀의 위치 지정
         coord C = {getRandomNum(8), getRandomNum(8)};
+        printf("snake : constructed at %d, %d\n", C.y, C.x);
+        // 나머지 벡터 재설정
         for (int i = 0; i < 8; i++)
         {
             for (int j = 0; j < 8; j++)
@@ -110,13 +153,8 @@ public:
         currentYX = C;
         //Trail에도 추가
         pushTrail(C);
+        // 먹이 추가
         setPrey();
-    }
-
-    coord get()
-    {
-        //현재 위치 출력
-        return currentYX;
     }
 
     //향하는 방향으로 움직임.
@@ -153,7 +191,6 @@ public:
             //먹이를 먹으면 스코어==size++ 새로운 먹이 생성
             if (currentYX.y == prey.y && currentYX.x == prey.x)
             {
-                printf("snake : prey eaten\n");
                 size++;
                 pushTrail(ret);
                 setPrey();
@@ -180,53 +217,13 @@ public:
         return false;
     }
 
-    void pushTrail(coord C)
-    {
-        //        trail의 앞부분에 C추가
-        trail.insert(trail.begin(), C);
-        removeFromRemaining(C);
-        remaining.insert(remaining.begin(), trail.begin() + size, trail.end());
-        trail.assign(trail.begin(), trail.begin() + size);
-    }
-
-    vector<coord> getTrail()
-    {
-        return trail;
-    }
-
-    int getSpeed()
-    {
-        return this->speed;
-    }
-
     // 8*8의 판 위에 존재하는 지 확인하는 코드
-    static bool isOnSpace(coord C)
-    {
-        bool ret = true;
-        if (C.y > 7 || C.y < 0 || C.x > 7 || C.x < 0)
-        {
-            ret = false;
-        }
-        return ret;
-    }
 
-    coord setPrey()
-    {
-        prey = remaining[getRandomNum(remaining.size())];
-        removeFromRemaining(prey);
-        printf("snake : prey setted at %d, %d\n", prey.y, prey.x);
-        // 디버깅용
-        // printVector(remaining);
-        // printVector(trail);
-        return prey;
-    }
+    int getScore() { return size; }
+    int getSpeed() { return this->speed; }
 
-    coord getPrey()
-    {
-        return prey;
-    }
-    int getScore()
-    {
-        return size;
-    }
+    coord get() { return currentYX; }
+    coord getPrey() { return prey; }
+
+    vector<coord> getTrail() { return trail; }
 };

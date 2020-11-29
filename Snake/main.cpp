@@ -3,7 +3,7 @@
 //  Snake
 //
 //  Created by HongJinwoo on 2020/11/24.
-//
+//  스네이크 게임에 필요한 장비들의 클래스 초기화 게임로직을 담고있는 파일
 
 #include <iostream>
 #include <vector>
@@ -12,39 +12,26 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <termios.h>
-#include <cstdlib>
-#include <sys/signal.h>
-#include <sys/types.h>
-#include <asm/ioctls.h>
 
 #include "DotMatrix.cpp"
 #include "Snake.cpp"
 #include "TactSW.cpp"
 #include "CharacterLCD.cpp"
 #include "LED.cpp"
+#include "FND.cpp"
 
+// 1/600초를 정의
 #define TIME_QUANTUM 1667
 
 using namespace std;
 
+// YX좌표를 표현하기 위한 구조체
 #ifndef COORD_SET
 typedef struct coord
 {
     int y;
     int x;
 } coord;
-#endif
-
-#ifndef ENUM_SET
-typedef enum : int
-{
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
-    OK
-} UDLR;
 #endif
 
 class Game
@@ -54,18 +41,19 @@ private:
     int highScore;
     coord snakeCoord;
     Snake s;
-    DotMatrix dM;
+    DotMatrix DM;
     TactSW TSW;
     CharacterLCD CL;
     LED LE;
+    FND FN;
 
-    //벡터를 매트릭스로 표현
+    //주어진 벡터를 닷 매트릭스로 설정
     void vector2Matrix(vector<coord> V)
     {
-        dM.clear();
-        for (coord trail : V)
+        DM.clear();
+        for (coord dot : V)
         {
-            dM.set(trail);
+            DM.set(dot);
         }
     }
 
@@ -75,125 +63,135 @@ public:
         highScore = 0;
     }
 
+    // 게임 시작
     void start()
     {
-        int score;
-        int head;
-        int temp;
+        int score, head, temp, temp2;
+
+        // CLCD에 게임시작방법 표시
         printf("game : waiting for user to press OK\n");
         CL.beforeGame();
         while (true)
         {
-
+            // 현재 뱀의 위치 반환 후 시리얼에 표시
             snakeCoord = s.get();
             printf("game : snake constructed @ y:%d x:%d\n", snakeCoord.y, snakeCoord.x);
+
+            //TactSW가 OK 버튼을 누를때까지 대기
             while (TSW.get() != 4)
                 ;
+
+            //타이머와 스코어 초기화
             timer = score = 1;
+
+            // head를 -1로 초기화하여 사용자가 플레이어를 확인하고 시작하게 도움
             head = -1;
+
+            // 게임이 시작되었으므로 CLCD 표시 내용 변경
             printf("game : waiting for selecting head\n");
             CL.gaming(score, highScore);
+
+            // 사용자가 방향키를 입력할때까지 무한 대기 화면에 Snake만 출력
             while ((head < 0) || (head > 3))
             {
-                dM.openDot();
-                print();
-                usleep(TIME_QUANTUM * 20);
+                printWoPrey(TIME_QUANTUM * 20);
                 head = TSW.get();
-                dM.closeDot();
             }
 
-            move(head);
+            // snake의 시작방향 정의
+            // go메소드가 실패하면 게임 오버 다시 실행
+            temp2 = s.go(head);
             printf("game : user selected head and game just started\n");
-            while (true)
+
+            while (temp2)
             {
+                // 20/600초 동안 dotMatrix에 표시
+                print(TIME_QUANTUM * 20);
+                // 1/600초 동안 LED에 표시
+                LE.draw(TIME_QUANTUM * 1);
+                // 9/600초 동안 FND에 표시
+                FN.draw(TIME_QUANTUM * 9);
 
-                dM.openDot();
-                print();
-                usleep(TIME_QUANTUM * 18);
-                dM.closeDot();
-
-                LE.openLED();
-                LE.next();
-                usleep(TIME_QUANTUM * 2);
-                LE.closeLED();
+                // 이 순간은 모든 장치가 Close되어있음
+                // TactSW의 메소드 get은 장치를 빠른 속도로 열고
+                // 장치의 값을 read함
                 temp = TSW.get();
 
+                // TactSW의 값이 내가 원하는 값인가?
                 if ((temp >= 0) && (temp < 4))
                 {
+                    // 그렇다면 진행방향으로 이동
                     head = temp;
                 }
-                if (!(timer % int(30 / s.getSpeed())))
+                // Snake의 속도에 비례해서 이동속도 표현
+                if (!(timer % int(20 / s.getSpeed())))
                 {
-                    if (!move(head))
+                    LE.next();
+                    // snake가 head방향으로 전진
+                    if (!s.go(head))
                     {
+                        // 이동에 문제가 발생하였다면 게임오버
                         break;
                     }
+
+                    // 현재 스코어와 스네이크의 스코어가 다르다면?
                     if (score != s.getScore())
                     {
+                        // 스코어를 저장
                         score = s.getScore();
-                        // 먹이 하나먹을때마다 갱신
+                        // CLCD 갱신
                         CL.gaming(score, highScore);
                     }
                 }
 
+                //타이머 시간초 추가
                 timer++;
-                if (timer >= 30)
+                // 20번 수행할때마다 0으로 초기화
+                // 20번 수행하면 1초가 지나감
+                if (!(timer % 20))
                 {
                     timer = 0;
+                    FN.next();
                 }
             }
+
+            // While문을 탈출했다면 CLCD값 변경
             printf("game : user just losted the game\nscore : %d\n", score);
             CL.gameOver(score);
+
+            // HighScore를 넘겼다면 값 변경
             if (score > highScore)
             {
                 highScore = score;
             }
-            LE.openLED();
+
+            // 모든 LED 점등
             LE.full();
-            sleep(5);
-            LE.closeLED();
+            // 5초동안 그리기
+            LE.draw(5 * 1000 * 1000);
+
+            // 게임 리셋
             printf("game : waiting for user to press OK\n");
             CL.beforeGame();
+            FN.reset();
             s.reset();
         }
     }
 
-    //heading이 향하는 방향으로 움직임
-    bool move(int heading)
-    {
-
-        //snake의 go메소드를 통해서 heading으로 한칸 움직임
-        bool ret = s.go(heading);
-        snakeCoord = s.get();
-        printf("moving %d: %d, %d\n", heading, snakeCoord.y, snakeCoord.x);
-        return ret;
-    }
-
     //장비에 출력
-    void print()
+    void print(int microSec)
     {
         vector2Matrix(s.getTrail());
-        dM.set(s.getPrey());
-        // dM.printToSerial();
-        dM.drawToMatrix();
+        DM.set(s.getPrey());
+        // DM.printToSerial();
+        DM.drawToMatrix(microSec);
     }
 
-    bool isGameOver(coord C, vector<coord> T)
+    // 먹이를 띄우지 않고 출력
+    void printWoPrey(int microSec)
     {
-        for (coord trail : T)
-        {
-            if ((C.x == trail.x) && (C.y == trail.y))
-            {
-                return true;
-            }
-        }
-
-        if (!(s.isOnSpace(C)))
-        {
-            return false;
-        }
-
-        return true;
+        vector2Matrix(s.getTrail());
+        DM.drawToMatrix(microSec);
     }
 };
 

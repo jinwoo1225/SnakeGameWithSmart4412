@@ -3,7 +3,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-const unsigned char ledArray[8] = {
+const unsigned char ledArray[9] = {
     0xFE,
     0xFD,
     0xFB,
@@ -11,13 +11,17 @@ const unsigned char ledArray[8] = {
     0xEF,
     0xDF,
     0xBF,
-    0x7F};
+    0x7F,
+    0x00};
 class LED
 {
 private:
     /* data */
     int offset;
     int led_fd;
+
+    void openLED() { led_fd = open(LED_DEV, O_WRONLY); }
+    void closeLED() { close(led_fd); }
 
 public:
     LED()
@@ -26,30 +30,21 @@ public:
         led_fd = -1;
     }
 
-    void openLED()
-    {
-        led_fd = open(LED_DEV, O_RDWR);
-    }
-
-    void closeLED()
-    {
-        close(led_fd);
-    }
-
+    //다음 LED로 이동
     void next()
     {
-        int led = 0;
-        if (offset > 7)
-        {
+        if (offset > 6)
             offset = 0;
-        }
-
-        write(led_fd, &ledArray[offset++], sizeof(unsigned char));
+        offset++;
     }
+    //모든 LED점등
+    void full() { offset = 8; }
 
-    void full()
+    void draw(int microSec)
     {
-        unsigned char a = 0x00;
-        write(led_fd, &a, sizeof(unsigned char));
+        openLED();
+        write(led_fd, &ledArray[offset], sizeof(unsigned char));
+        usleep(microSec);
+        closeLED();
     }
 };
