@@ -4,10 +4,11 @@
 # Hybus-Smart4412장비에 Snake게임을 구현했습니다!
 
 ## 사용한 IO장치
-1. DotMatrix
-2. TactSwitch
-3. Character LCD
-4. LED 8EA
+1. DotMatrix      "/dev/dot"
+2. TactSwitch     "/dev/tactsw"
+3. Character LCD  "/dev/clcd"
+4. LED 8EA        "/dev/led"
+5. FND 4EA        "/dev/fnd"
 
 ## 사용한 프로그래밍 언어
 C/C++
@@ -28,4 +29,4 @@ C/C++
 ## 해결방법 1
 1. 1초를 30등분하여서 표시(30- ⍺)fps로 표시 각 수행과정에서 한프레임이 길어지게됨.
 2. Tact Switch와 다른 장치들의 신호르 이용할때에는 매트릭스르 사용하지 않을때 사용.
-3. CLCD는 초기화 하지않으면 값이 남아있다. 하지만 값을 입력하는 동안에는 시간이 오래 소요됨. 즉, 자주 새로고침하면 성능에 문제가 생김.
+3. CLCD는 초기화 하지않으면 값이 남아있으므로 점수에 변경이 있을때 새로고침
